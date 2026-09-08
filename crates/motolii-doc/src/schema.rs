@@ -465,6 +465,10 @@ impl EffectInstance {
 }
 
 /// 正準空間の2D変形。親参照はスキーマ予約。
+///
+/// `z`は世界の奥行き(M5 F-1「2Dレイヤーは『Z=0のXY平面に置かれた高さ1.0の
+/// クワッド』として世界に置く」)。世界は最初から3Dで、欠けていたのは**レイヤーが
+/// その平面から離れる口**だけだった。`position`はXYのままで、zは独立した1本。
 #[derive(Debug, Clone, PartialEq, Serialize, DeserializeDerive)]
 pub struct Transform2D {
     pub position: DocParam,
@@ -472,8 +476,29 @@ pub struct Transform2D {
     pub scale: DocParam,
     /// ラジアン。
     pub rotation: DocParam,
+    /// 正準空間の奥行き。既定`0.0` = Z=0平面(全員がそこに居る)。
+    ///
+    /// **既定なら書き出さない**ので、`Composition.resolution`やロケータと同じく
+    /// 既存文書のバイト列は変わらず、旧readerは未知キーに出会わない — よって
+    /// **版も上げない**。読み手が居ない絵の側(`Affine2D`)は2D行列のままで、
+    /// zはまだ投影に入らない(M5で入る)。
+    #[serde(
+        default = "default_layer_z",
+        skip_serializing_if = "is_default_layer_z"
+    )]
+    pub z: DocParam,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub parent: Option<LayerId>,
+}
+
+/// レイヤーの既定の奥行き = Z=0平面。
+fn default_layer_z() -> DocParam {
+    DocParam::const_f64(0.0)
+}
+
+/// 既定の奥行きのままか(書き出し省略の判定)。
+fn is_default_layer_z(z: &DocParam) -> bool {
+    *z == default_layer_z()
 }
 
 impl Transform2D {
@@ -483,6 +508,7 @@ impl Transform2D {
             anchor: DocParam::const_vec2([0.0, 0.0]),
             scale: DocParam::const_vec2([1.0, 1.0]),
             rotation: DocParam::const_f64(0.0),
+            z: default_layer_z(),
             parent: None,
         }
     }

@@ -349,6 +349,7 @@ fn repeater_roundtrip_with_full_fields() {
             anchor: DocParam::const_vec2([0.0, 0.0]),
             scale: DocParam::const_vec2([0.9, 0.9]),
             rotation: DocParam::const_f64(0.1),
+            z: DocParam::const_f64(0.0),
             parent: None,
         },
         composite: CompositeOrder::Below,

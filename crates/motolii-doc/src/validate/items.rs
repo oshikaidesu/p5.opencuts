@@ -207,7 +207,7 @@ pub(super) fn document_has_any_effect_use(doc: &Document) -> bool {
     doc.tracks.iter().any(|t| walk(&t.items))
 }
 
-/// Transform2Dの4スロット共通検査。エンベロープ本体とRepeater.transformで共用(D1i-2)。
+/// Transform2Dのスロット共通検査。エンベロープ本体とRepeater.transformで共用(D1i-2)。
 fn validate_transform2d(doc: &Document, t: &Transform2D, base: &str) -> Result<(), DocumentError> {
     validate_param(
         doc,
@@ -232,6 +232,13 @@ fn validate_transform2d(doc: &Document, t: &Transform2D, base: &str) -> Result<(
         &t.rotation,
         param_expect::transform_rotation(),
         &format!("{base}.rotation"),
+    )?;
+    // 奥行きはスカラー1本。LookAt/Followは位置と角度の語彙なのでここには来ない。
+    validate_param(
+        doc,
+        &t.z,
+        ParamConstraints::scalar_f64(),
+        &format!("{base}.z"),
     )
 }
 

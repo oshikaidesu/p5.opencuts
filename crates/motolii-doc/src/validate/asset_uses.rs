@@ -138,12 +138,14 @@ fn collect_asset_uses_transform(transform: &Transform2D, base: &str, out: &mut V
         anchor,
         scale,
         rotation,
+        z,
         parent: _,
     } = transform;
     collect_asset_uses_param(position, &format!("{base}.position"), out);
     collect_asset_uses_param(anchor, &format!("{base}.anchor"), out);
     collect_asset_uses_param(scale, &format!("{base}.scale"), out);
     collect_asset_uses_param(rotation, &format!("{base}.rotation"), out);
+    collect_asset_uses_param(z, &format!("{base}.z"), out);
 }
 
 pub(super) fn collect_asset_uses_param(param: &DocParam, path: &str, out: &mut Vec<AssetUse>) {
